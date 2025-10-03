@@ -1,0 +1,60 @@
+<app-loader></app-loader>
+<app-snack-bar></app-snack-bar>
+
+<div class="min-h-screen flex flex-col bg-gradient-to-b from-blue-100 to-blue-50">
+  <main class="flex-1 flex flex-col p-4 gap-y-4">
+
+    <div class="self-center flex items-center gap-x-6 bg-white rounded-full p-3 shadow-md max-w-md w-full">
+      <button class="w-6 h-6" (click)="searchCity(cityInput)">
+        <img src="icons/search.png" alt="Search" class="w-5 h-5">
+      </button>
+
+      <input class="w-full bg-transparent outline-none text-lg"
+             type="text"
+             placeholder="Digite o nome da cidade"
+             (keyup.enter)="searchCity(cityInput)"
+             #cityInput>
+    </div>
+
+    <div class="flex-1 flex flex-col justify-center" [ngClass]="{'hidden': !weathers.length}">
+      <div class="flex flex-col gap-y-6 w-full">
+        <h2 class="text-3xl font-bold text-center text-gray-800">
+          Clima no dia {{ weathers[0]?.time | date: 'dd/MM/YY' }}
+        </h2>
+
+        <h3 class="text-xl text-center text-gray-500">
+          {{ city }} - {{ state }} - {{ country }}
+        </h3>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 overflow-x-auto p-2">
+          @for (weather of weathers; track weather.temperature) {
+            <div class="min-w-50 min-h-50 bg-white p-2 rounded-lg border border-gray-200 shadow-lg flex flex-col items-center justify-around">
+
+              <div class="self-start flex items-center gap-x-2">
+                <div class="h-6 w-1 rounded-md bg-red-400"></div>
+                <span class="text-lg">Horário: {{ weather?.time | date:'HH:mm' }}</span>
+              </div>
+
+              <div class="self-start flex items-center gap-x-2">
+                <div class="h-6 w-1 rounded-md bg-blue-400"></div>
+                <span class="text-lg">Temperatura: {{ weather?.temperature }} °C</span>
+              </div>
+
+              @if (weather.temperature < 10) {
+                <img src="weather-images/cold.png" alt="Frio" class="w-12 h-12">
+              } @else if (weather.temperature < 20) {
+                <img src="weather-images/cloud.png" alt="Normal" class="w-12 h-12">
+              } @else {
+                <img src="weather-images/hot.png" alt="Calor" class="w-12 h-12">
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="w-full flex items-center justify-center py-2 text-gray-800">
+    <h1>Dados coletados da Open-Meteo</h1>
+  </footer>
+</div>
