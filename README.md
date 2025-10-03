@@ -28,4 +28,4 @@ Os dados sobre o clima vêm da API da Open-Meteo, a documentação e página pod
 
 ## 🌐 Acesse o Projeto
 O projeto pode ser acessado online por meio do GitHub Pages: <br>
-👉 [Timer](https://joaocriminacio.github.io/ClimaTempo/)
+👉 [Clima Tempo](https://joaocriminacio.github.io/ClimaTempo/)
