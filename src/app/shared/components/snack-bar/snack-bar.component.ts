@@ -1,13 +1,12 @@
 import {Component, OnInit} from '@angular/core';
-import {AsyncPipe, NgClass} from '@angular/common';
+import {NgClass} from '@angular/common';
 import {SnackBarService} from '../../services/snack-bar.service';
 import {ISnackBar} from '../../models/snack-bar.model';
 
 @Component({
   selector: 'app-snack-bar',
   imports: [
-    NgClass,
-    AsyncPipe
+    NgClass
   ],
   templateUrl: './snack-bar.component.html',
   styleUrl: './snack-bar.component.css'

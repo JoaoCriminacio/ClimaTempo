@@ -22,10 +22,11 @@ import {DatePipe, NgClass} from '@angular/common';
 export class AppComponent {
     protected latitude!: number;
     protected longitude!: number;
-    protected city!: string;
-    protected state!: string;
-    protected country!: string;
-    protected weathers: IWeather[] = [];
+    protected cityInfo!: string;
+    protected allWeathers: IWeather[] = [];
+    protected showingWeathers: IWeather[] = [];
+    protected initialSlice: number = 0;
+    protected finalSlice: number = 24;
 
     constructor(private citiesService: CitiesService,
                 private weatherService: WeatherService,
@@ -40,27 +41,27 @@ export class AppComponent {
       this.loaderService.show();
 
       this.citiesService.getCityInfo(city).subscribe({
-        next: async (response) => {
+        next: (response) => {
           if (!response?.results || response.results.length === 0) {
-            this.weathers = [];
+            this.showingWeathers = [];
             this.snackBarService.show('Cidade não encontrada', 'error');
             this.loaderService.hide();
             return;
           }
 
-          console.log(response)
-
           this.latitude = response?.results[0]?.latitude;
           this.longitude = response?.results[0]?.longitude;
-          this.city = response?.results[0]?.name;
-          this.state = response?.results[0]?.admin1;
-          this.country = response?.results[0]?.country;
+          this.cityInfo = response?.results[0]?.name;
 
-          if (this.latitude && this.longitude){
-            await this.getWeatherInfo(this.latitude, this.longitude);
+          if (response?.results[0]?.admin1) this.cityInfo += ` - ${response?.results[0]?.admin1}`;
+
+          if (response?.results[0]?.country) this.cityInfo += ` - ${response?.results[0]?.country}`;
+
+          if (this.latitude && this.longitude) {
+            this.getWeatherInfo(this.latitude, this.longitude);
+          } else {
+            this.loaderService.hide();
           }
-
-          this.loaderService.hide();
         },
         error: (err) => {
           this.snackBarService.show('Erro ao buscar cidade', 'error');
@@ -69,16 +70,31 @@ export class AppComponent {
       });
     }
 
-    protected async getWeatherInfo(latitude: number, longitude: number) {
+    protected manageWeather(offset: number) {
+      if (this.initialSlice + offset < 0 || this.finalSlice + offset > this.allWeathers.length) return;
+
+      this.showingWeathers = this.allWeathers.slice(this.initialSlice + offset, this.finalSlice + offset);
+      this.initialSlice += offset;
+      this.finalSlice += offset;
+    }
+
+    private getWeatherInfo(latitude: number, longitude: number) {
       this.weatherService.getWeatherInfo(latitude, longitude).subscribe({
         next: (response) => {
-          const times = response?.hourly?.time.slice(0, 24) || [];
-          const temps = response?.hourly?.temperature_2m.slice(0, 24) || [];
+          this.initialSlice = 0;
+          this.finalSlice = 24;
 
-          this.weathers = times.map((t: string, i: number) => ({
+          const times = response?.hourly?.time || [];
+          const temps = response?.hourly?.temperature_2m || [];
+
+          this.allWeathers = times.map((t: string, i: number) => ({
             temperature: temps[i],
             time: t
           }));
+
+          this.showingWeathers = this.allWeathers.slice(this.initialSlice, this.finalSlice);
+
+          this.loaderService.hide();
         },
         error: (err) => {
           this.snackBarService.show('Erro ao buscar clima', 'error');
