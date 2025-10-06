@@ -2,9 +2,12 @@
 <app-snack-bar></app-snack-bar>
 
 <div class="min-h-screen flex flex-col bg-gradient-to-b from-blue-100 to-blue-50">
-  <main class="flex-1 flex flex-col p-4 gap-y-4">
+  <main class="flex-1 flex flex-col p-4 gap-y-6">
+    <h1 class="text-4xl font-bold text-center text-gray-800">
+      Clima Tempo
+    </h1>
 
-    <div class="self-center flex items-center gap-x-6 bg-white rounded-full p-3 shadow-md max-w-md w-full">
+    <div class="self-center flex items-center gap-x-6 bg-white rounded-full p-2 shadow-md max-w-md w-full">
       <button class="w-6 h-6" (click)="searchCity(cityInput)">
         <img src="icons/search.png" alt="Search" class="w-5 h-5">
       </button>
@@ -24,11 +27,11 @@
                               'cursor-pointer transition hover:scale-110': initialSlice > 0}"
                   [disabled]="initialSlice === 0"
                   (click)="manageWeather(-24)">
-            <img src="icons/chevron.png" alt="Previous" class="w-5 h-5">
+            <img src="icons/chevron.png" alt="Previous" class="w-4 h-4 sm:w-5 sm:h-5">
           </button>
 
-          <h2 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">
-            Clima no dia {{ showingWeathers[0]?.time | date: 'dd/MM/YY' }}
+          <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
+            {{ showingWeathers[0]?.time | date: 'EEE (dd/MM/YY)' | titlecase }}
           </h2>
 
           <button class="flex items-center mt-1"
@@ -36,34 +39,41 @@
                               'cursor-pointer transition hover:scale-110': finalSlice < allWeathers.length}"
                   [disabled]="finalSlice === allWeathers.length"
                   (click)="manageWeather(24)">
-            <img src="icons/chevron.png" alt="Next" class="w-5 h-5 rotate-180">
+            <img src="icons/chevron.png" alt="Next" class="w-4 h-4 sm:w-5 sm:h-5 rotate-180">
           </button>
         </div>
 
-        <h3 class="text-xl text-center text-gray-500">
-          {{ cityInfo }}
-        </h3>
+        <div class="flex flex-col gap-3 sm:gap-6 items-center justify-center text-gray-500">
+          <p class="text-xl">{{ cityInfo }}</p>
+          <p class="text-lg font-medium">Temperatura Média: {{ avarageTemperature }} °C</p>
+        </div>
 
         <div class="flex flex-col sm:flex-row items-center gap-4 overflow-x-auto p-2">
           @for (weather of showingWeathers; track weather.time) {
-            <div class="min-w-50 min-h-50 bg-white p-2 rounded-lg border border-gray-200 shadow-lg flex flex-col items-center justify-around">
-
+            <div class="min-w-60 min-h-60 bg-white p-2 rounded-lg border border-gray-200 shadow-lg flex flex-col items-center justify-around">
               <div class="self-start flex items-center gap-x-2">
                 <div class="h-6 w-1 rounded-md bg-red-400"></div>
                 <span class="text-lg">Horário: {{ weather?.time | date:'HH:mm' }}</span>
               </div>
 
               <div class="self-start flex items-center gap-x-2">
-                <div class="h-6 w-1 rounded-md bg-blue-400"></div>
+                <div class="h-6 w-1 rounded-md bg-orange-400"></div>
                 <span class="text-lg">Temperatura: {{ weather?.temperature }} °C</span>
               </div>
 
-              @if (weather.temperature < 10) {
-                <img src="weather-images/cold.png" alt="Frio" class="w-12 h-12">
+              <div class="self-start flex items-center gap-x-2">
+                <div class="h-6 w-1 rounded-md bg-blue-400"></div>
+                <span class="text-lg">Precipitação: {{ weather?.precipitation }} %</span>
+              </div>
+
+              @if (weather.precipitation > 50) {
+                <img src="weather-images/rain.png" alt="Chuva" class="w-11 h-11">
+              } @else if (weather.temperature < 10) {
+                <img src="weather-images/cold.png" alt="Frio" class="w-11 h-11">
               } @else if (weather.temperature < 20) {
-                <img src="weather-images/cloud.png" alt="Normal" class="w-12 h-12">
+                <img src="weather-images/cloud.png" alt="Normal" class="w-11 h-11">
               } @else {
-                <img src="weather-images/hot.png" alt="Calor" class="w-12 h-12">
+                <img src="weather-images/hot.png" alt="Calor" class="w-11 h-11">
               }
             </div>
           }

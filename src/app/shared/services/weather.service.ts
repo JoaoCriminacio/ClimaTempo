@@ -11,6 +11,6 @@ export class WeatherService {
     constructor(private http: HttpClient) {}
 
     public getWeatherInfo(latitude: number, longitude: number) {
-      return this.http.get<IWeatherApi>(`${this.baseUrl}?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`);
+      return this.http.get<IWeatherApi>(`${this.baseUrl}?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,precipitation_probability`);
     }
 }
