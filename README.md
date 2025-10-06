@@ -1,5 +1,5 @@
 <h1 align="center"> Clima Tempo </h1>
-<img width="1920" height="945" alt="image" src="https://github.com/user-attachments/assets/3195f413-89d1-4891-adc6-cad2c2f60aeb" />
+<img width="1920" height="945" alt="image" src="https://github.com/user-attachments/assets/5f179369-d134-4bb6-ae8b-877f2edb2f95" />
 
 ## 🛠 Tecnologias
 
