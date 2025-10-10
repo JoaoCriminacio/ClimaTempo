@@ -7,6 +7,8 @@ import {SnackBarService} from './shared/services/snack-bar.service';
 import {WeatherService} from './shared/services/weather.service';
 import {IWeather} from './shared/models/weather.model';
 import {DatePipe, NgClass, TitleCasePipe} from '@angular/common';
+import {distinctUntilChanged, Subject} from 'rxjs';
+import {ICityResults} from './shared/models/city.model';
 
 @Component({
   selector: 'app-root',
@@ -29,11 +31,49 @@ export class AppComponent {
     protected avarageTemperature: number = 0;
     protected initialSlice: number = 0;
     protected finalSlice: number = 24;
+    protected citySuggestions: ICityResults[] = [];
+    private searchSubject = new Subject<string>();
 
     constructor(private citiesService: CitiesService,
                 private weatherService: WeatherService,
                 private loaderService: LoaderService,
-                private snackBarService: SnackBarService) {}
+                private snackBarService: SnackBarService) {
+      this.searchSubject.pipe(
+        distinctUntilChanged()
+      ).subscribe((value) => this.loadCitySuggestions(value));
+    }
+
+    protected onCityInput(event: Event) {
+      const value = (event.target as HTMLInputElement).value.trim();
+
+      if (!value || value.length < 2) {
+        this.citySuggestions = [];
+        return;
+      }
+
+      this.searchSubject.next(value);
+    }
+
+    protected onCityBlur() {
+      setTimeout(() => {
+        this.citySuggestions = [];
+      }, 150);
+    }
+
+    protected selectCity(city: ICityResults, input: HTMLInputElement) {
+      input.value = '';
+      this.getWeatherInfo(city.latitude, city.longitude);
+      this.cityInfo = `${city.name} - ${city.admin1 || ''} - ${city.country || ''}`;
+    }
+
+    protected manageWeather(offset: number) {
+      if (this.initialSlice + offset < 0 || this.finalSlice + offset > this.allWeathers.length) return;
+
+      this.showingWeathers = this.allWeathers.slice(this.initialSlice + offset, this.finalSlice + offset);
+      this.avarageTemperature = this.calculateAverageTemperature(this.showingWeathers);
+      this.initialSlice += offset;
+      this.finalSlice += offset;
+    }
 
     protected searchCity(input: HTMLInputElement) {
       const city = input.value.trim();
@@ -44,6 +84,8 @@ export class AppComponent {
 
       this.citiesService.getCityInfo(city).subscribe({
         next: (response) => {
+          this.citySuggestions = [];
+
           if (!response?.results || response.results.length === 0) {
             this.showingWeathers = [];
             this.snackBarService.show('Cidade não encontrada', 'error');
@@ -72,16 +114,8 @@ export class AppComponent {
       });
     }
 
-    protected manageWeather(offset: number) {
-      if (this.initialSlice + offset < 0 || this.finalSlice + offset > this.allWeathers.length) return;
-
-      this.showingWeathers = this.allWeathers.slice(this.initialSlice + offset, this.finalSlice + offset);
-      this.avarageTemperature = this.calculateAvarageTemperature(this.showingWeathers);
-      this.initialSlice += offset;
-      this.finalSlice += offset;
-    }
-
     private getWeatherInfo(latitude: number, longitude: number) {
+      this.loaderService.show();
       this.weatherService.getWeatherInfo(latitude, longitude).subscribe({
         next: (response) => {
           this.initialSlice = 0;
@@ -98,7 +132,7 @@ export class AppComponent {
           }));
 
           this.showingWeathers = this.allWeathers.slice(this.initialSlice, this.finalSlice);
-          this.avarageTemperature = this.calculateAvarageTemperature(this.showingWeathers);
+          this.avarageTemperature = this.calculateAverageTemperature(this.showingWeathers);
           this.loaderService.hide();
         },
         error: (err) => {
@@ -108,10 +142,21 @@ export class AppComponent {
       })
     }
 
-    private calculateAvarageTemperature(weathers: IWeather[]) {
+    private calculateAverageTemperature(weathers: IWeather[]) {
       if (!weathers.length) return 0;
       const weatherTemperatures = weathers.map((w) => w.temperature);
       const total = weatherTemperatures.reduce((accTemperature, temperature) => accTemperature + temperature, 0);
       return Math.round(total / weatherTemperatures.length);
+    }
+
+    private loadCitySuggestions(value: string) {
+      this.citiesService.getCitySuggestions(value).subscribe({
+        next: (response) => {
+          this.citySuggestions = response?.results || [];
+        },
+        error: () => {
+          this.citySuggestions = [];
+        }
+      });
     }
 }

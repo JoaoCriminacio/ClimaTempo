@@ -1,15 +1,11 @@
 export interface ICity {
-  name: string;
-  latitude: number;
-  longitude: number;
+  results: ICityResults[]
 }
 
-export interface ICityApi {
-  results: {
-    name: string;
-    admin1: string;
-    country: string;
-    latitude: number;
-    longitude: number;
-  }[]
+export interface ICityResults {
+  name: string;
+  admin1: string;
+  country: string;
+  latitude: number;
+  longitude: number;
 }
