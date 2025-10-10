@@ -57,7 +57,7 @@ export class AppComponent {
     protected onCityBlur() {
       setTimeout(() => {
         this.citySuggestions = [];
-      }, 150);
+      }, 250);
     }
 
     protected selectCity(city: ICityResults, input: HTMLInputElement) {
