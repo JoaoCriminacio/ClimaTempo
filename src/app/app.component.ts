@@ -75,6 +75,13 @@ export class AppComponent {
       this.finalSlice += offset;
     }
 
+    protected buildCityInfo(city: ICityResults) {
+      this.cityInfo = city.name;
+      if (city.admin1) this.cityInfo += ` - ${city.admin1}`;
+      if (city.country) this.cityInfo += ` - ${city.country}`;
+      return this.cityInfo;
+    }
+
     protected searchCity(input: HTMLInputElement) {
       const city = input.value.trim();
       input.value = '';
@@ -154,11 +161,5 @@ export class AppComponent {
           this.citySuggestions = [];
         }
       });
-    }
-
-    private buildCityInfo(city: ICityResults) {
-      this.cityInfo = city.name;
-      if (city.admin1) this.cityInfo += ` - ${city.admin1}`;
-      if (city.country) this.cityInfo += ` - ${city.country}`;
     }
 }

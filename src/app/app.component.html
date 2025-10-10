@@ -29,13 +29,7 @@
           @for (city of citySuggestions; track city.latitude) {
             <li (click)="selectCity(city, cityInput)"
                 class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-              {{ city.name }}
-              @if (city.admin1) {
-                <span> - {{ city.admin1 }}</span>
-              }
-              @if (city.country) {
-                <span> - {{ city.country }}</span>
-              }
+              {{ buildCityInfo(city) }}
             </li>
           }
         </ul>
