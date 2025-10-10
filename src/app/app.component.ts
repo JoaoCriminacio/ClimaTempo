@@ -63,7 +63,7 @@ export class AppComponent {
     protected selectCity(city: ICityResults, input: HTMLInputElement) {
       input.value = '';
       this.getWeatherInfo(city.latitude, city.longitude);
-      this.cityInfo = `${city.name} - ${city.admin1 || ''} - ${city.country || ''}`;
+      this.buildCityInfo(city);
     }
 
     protected manageWeather(offset: number) {
@@ -95,11 +95,7 @@ export class AppComponent {
 
           this.latitude = response?.results[0]?.latitude;
           this.longitude = response?.results[0]?.longitude;
-          this.cityInfo = response?.results[0]?.name;
-
-          if (response?.results[0]?.admin1) this.cityInfo += ` - ${response?.results[0]?.admin1}`;
-
-          if (response?.results[0]?.country) this.cityInfo += ` - ${response?.results[0]?.country}`;
+          this.buildCityInfo(response?.results[0])
 
           if (this.latitude && this.longitude) {
             this.getWeatherInfo(this.latitude, this.longitude);
@@ -158,5 +154,11 @@ export class AppComponent {
           this.citySuggestions = [];
         }
       });
+    }
+
+    private buildCityInfo(city: ICityResults) {
+      this.cityInfo = city.name;
+      if (city.admin1) this.cityInfo += ` - ${city.admin1}`;
+      if (city.country) this.cityInfo += ` - ${city.country}`;
     }
 }
