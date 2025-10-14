@@ -32,6 +32,7 @@ export class AppComponent {
     protected initialSlice: number = 0;
     protected finalSlice: number = 24;
     protected citySuggestions: ICityResults[] = [];
+    protected selectedIndex: number = -1;
     private searchSubject = new Subject<string>();
 
     constructor(private citiesService: CitiesService,
@@ -54,9 +55,32 @@ export class AppComponent {
       this.searchSubject.next(value);
     }
 
+    protected onCityKeyDown(event: KeyboardEvent, input: HTMLInputElement) {
+      if (!this.citySuggestions.length) {
+        event.key === 'Enter' ? this.searchCity(input) : null;
+        return;
+      }
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        this.selectedIndex = (this.selectedIndex + 1) % this.citySuggestions.length;
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        this.selectedIndex = (this.selectedIndex - 1 + this.citySuggestions.length) % this.citySuggestions.length;
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        if (this.selectedIndex >= 0 && this.selectedIndex < this.citySuggestions.length) {
+          this.selectCity(this.citySuggestions[this.selectedIndex], input);
+        } else {
+          this.searchCity(input);
+        }
+      }
+    }
+
     protected onCityBlur() {
       setTimeout(() => {
         this.citySuggestions = [];
+        this.selectedIndex = -1;
       }, 300);
     }
 
@@ -64,22 +88,6 @@ export class AppComponent {
       input.value = '';
       this.cityInfo = this.buildCityInfo(city);
       this.getWeatherInfo(city.latitude, city.longitude);
-    }
-
-    protected manageWeather(offset: number) {
-      if (this.initialSlice + offset < 0 || this.finalSlice + offset > this.allWeathers.length) return;
-
-      this.showingWeathers = this.allWeathers.slice(this.initialSlice + offset, this.finalSlice + offset);
-      this.avarageTemperature = this.calculateAverageTemperature(this.showingWeathers);
-      this.initialSlice += offset;
-      this.finalSlice += offset;
-    }
-
-    protected buildCityInfo(city: ICityResults) {
-      let info = city.name;
-      if (city.admin1) info += ` - ${city.admin1}`;
-      if (city.country) info += ` - ${city.country}`;
-      return info;
     }
 
     protected searchCity(input: HTMLInputElement) {
@@ -91,8 +99,6 @@ export class AppComponent {
 
       this.citiesService.getCityInfo(city).subscribe({
         next: (response) => {
-          this.citySuggestions = [];
-
           if (!response?.results || response.results.length === 0) {
             this.showingWeathers = [];
             this.snackBarService.show('Cidade não encontrada', 'error');
@@ -106,14 +112,33 @@ export class AppComponent {
 
           this.getWeatherInfo(this.latitude, this.longitude);
         },
-        error: (err) => {
+        error: () => {
           this.snackBarService.show('Erro ao buscar cidade', 'error');
           this.loaderService.hide();
         }
       });
     }
 
+    protected buildCityInfo(city: ICityResults) {
+      let info = city.name;
+      if (city.admin1) info += ` - ${city.admin1}`;
+      if (city.country) info += ` - ${city.country}`;
+      return info;
+    }
+
+    protected manageWeather(offset: number) {
+      if (this.initialSlice + offset < 0 || this.finalSlice + offset > this.allWeathers.length) return;
+
+      this.showingWeathers = this.allWeathers.slice(this.initialSlice + offset, this.finalSlice + offset);
+      this.avarageTemperature = this.calculateAverageTemperature(this.showingWeathers);
+      this.initialSlice += offset;
+      this.finalSlice += offset;
+    }
+
     private getWeatherInfo(latitude: number, longitude: number) {
+      this.citySuggestions = [];
+      this.selectedIndex = -1;
+
       this.loaderService.show();
 
       this.weatherService.getWeatherInfo(latitude, longitude).subscribe({
@@ -136,7 +161,7 @@ export class AppComponent {
 
           this.loaderService.hide();
         },
-        error: (err) => {
+        error: () => {
           this.snackBarService.show('Erro ao buscar clima', 'error');
           this.loaderService.hide();
         }

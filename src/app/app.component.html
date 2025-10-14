@@ -9,7 +9,7 @@
 
     <div class="self-center flex flex-col items-center max-w-md w-full relative">
       <div class="p-2 flex items-center gap-x-3 bg-white rounded-full shadow-md w-full">
-        <button class="w-6 h-6" (click)="searchCity(cityInput)">
+        <button class="w-6 h-6 cursor-pointer" (click)="searchCity(cityInput)">
           <img src="icons/search.png" alt="Search" class="w-5 h-5">
         </button>
 
@@ -18,7 +18,7 @@
           type="text"
           placeholder="Digite o nome da cidade"
           (input)="onCityInput($event)"
-          (keyup.enter)="searchCity(cityInput)"
+          (keydown)="onCityKeyDown($event, cityInput)"
           (blur)="onCityBlur()"
           #cityInput
         >
@@ -26,9 +26,10 @@
 
       @if (citySuggestions.length) {
         <ul class="absolute top-full mt-2 bg-white rounded-lg shadow-md z-5 w-full">
-          @for (city of citySuggestions; track city.latitude) {
+          @for (city of citySuggestions; let i = $index; track city.latitude) {
             <li (click)="selectCity(city, cityInput)"
-                class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                [ngClass]="{'bg-gray-100': i === selectedIndex}">
               {{ buildCityInfo(city) }}
             </li>
           }
