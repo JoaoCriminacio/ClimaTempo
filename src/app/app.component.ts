@@ -57,13 +57,14 @@ export class AppComponent {
     protected onCityBlur() {
       setTimeout(() => {
         this.citySuggestions = [];
-      }, 250);
+      }, 350);
     }
 
     protected selectCity(city: ICityResults, input: HTMLInputElement) {
       input.value = '';
+      this.citySuggestions = [];
+      this.cityInfo = this.buildCityInfo(city);
       this.getWeatherInfo(city.latitude, city.longitude);
-      this.buildCityInfo(city);
     }
 
     protected manageWeather(offset: number) {
@@ -102,7 +103,7 @@ export class AppComponent {
 
           this.latitude = response?.results[0]?.latitude;
           this.longitude = response?.results[0]?.longitude;
-          this.buildCityInfo(response?.results[0])
+          this.cityInfo = this.buildCityInfo(response?.results[0])
 
           if (this.latitude && this.longitude) {
             this.getWeatherInfo(this.latitude, this.longitude);
