@@ -57,12 +57,11 @@ export class AppComponent {
     protected onCityBlur() {
       setTimeout(() => {
         this.citySuggestions = [];
-      }, 350);
+      }, 300);
     }
 
     protected selectCity(city: ICityResults, input: HTMLInputElement) {
       input.value = '';
-      this.citySuggestions = [];
       this.cityInfo = this.buildCityInfo(city);
       this.getWeatherInfo(city.latitude, city.longitude);
     }
@@ -77,10 +76,10 @@ export class AppComponent {
     }
 
     protected buildCityInfo(city: ICityResults) {
-      this.cityInfo = city.name;
-      if (city.admin1) this.cityInfo += ` - ${city.admin1}`;
-      if (city.country) this.cityInfo += ` - ${city.country}`;
-      return this.cityInfo;
+      let info = city.name;
+      if (city.admin1) info += ` - ${city.admin1}`;
+      if (city.country) info += ` - ${city.country}`;
+      return info;
     }
 
     protected searchCity(input: HTMLInputElement) {
@@ -105,11 +104,7 @@ export class AppComponent {
           this.longitude = response?.results[0]?.longitude;
           this.cityInfo = this.buildCityInfo(response?.results[0])
 
-          if (this.latitude && this.longitude) {
-            this.getWeatherInfo(this.latitude, this.longitude);
-          } else {
-            this.loaderService.hide();
-          }
+          this.getWeatherInfo(this.latitude, this.longitude);
         },
         error: (err) => {
           this.snackBarService.show('Erro ao buscar cidade', 'error');
@@ -120,6 +115,7 @@ export class AppComponent {
 
     private getWeatherInfo(latitude: number, longitude: number) {
       this.loaderService.show();
+
       this.weatherService.getWeatherInfo(latitude, longitude).subscribe({
         next: (response) => {
           this.initialSlice = 0;
@@ -137,6 +133,7 @@ export class AppComponent {
 
           this.showingWeathers = this.allWeathers.slice(this.initialSlice, this.finalSlice);
           this.avarageTemperature = this.calculateAverageTemperature(this.showingWeathers);
+
           this.loaderService.hide();
         },
         error: (err) => {
